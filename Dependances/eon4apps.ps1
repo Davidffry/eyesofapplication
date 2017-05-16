@@ -84,7 +84,9 @@ Catch {
     AddValues "ERROR" "Envoi de la trap en erreur"
  	$Send_Trap = & ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
 	AddValues "ERROR" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
-	exit 2
+	AddValues "INFO" "Restore screen resolution"
+    $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
+    exit 2
 
 }
 
@@ -123,6 +125,9 @@ $Information = $Information + $PerfData[1]
 AddValues "INFO" $Information
 $Send_Trap = & ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
 AddValues "INFO" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
+
+AddValues "INFO" "Restore screen resolution"
+$out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
 # Fin de la sonde
 AddValues "INFO" "Fin de la sonde"
