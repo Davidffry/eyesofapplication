@@ -1,10 +1,11 @@
-﻿#*********************************************************************************************************************************************#
+#*********************************************************************************************************************************************#
 #*                                                                                                                                           *#
 #* Powershell                                                                                                                                *#
 #* Author:LEVY Jean-Philippe                                                                                                                 *#
 #*                                                                                                                                           *#
 #* Script Function  : Scénario de test de connexion à la page Téléchargements de www.eyesofnetwork.fr                                        *#
 #* Expected results : Etat + Temps de lancement + Action                                                                                     *#
+#* Manual Execution : powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File "C:\eon\APX\EON4APPS\eon4apps.ps1" www.eyesofnetwork.fr 127.0.0.1 TEST
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
