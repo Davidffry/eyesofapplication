@@ -86,123 +86,15 @@ Function Move-Mouse ($AbsoluteX, $AbsoluteY)
     Start-sleep 1
 }
 
-# Fonction pour définir les styles de fenêtre
-Function Set-WindowStyle 
-{
-param(
-    [Parameter()]
-    [ValidateSet('FORCEMINIMIZE', 'HIDE', 'MAXIMIZE', 'MINIMIZE', 'RESTORE', 
-                 'SHOW', 'SHOWDEFAULT', 'SHOWMAXIMIZED', 'SHOWMINIMIZED', 
-                 'SHOWMINNOACTIVE', 'SHOWNA', 'SHOWNOACTIVATE', 'SHOWNORMAL')]
-    $Style = 'SHOW',
-    [Parameter()]
-    $MainWindowHandle = (Get-Process -Id $pid).MainWindowHandle
-)
-    $WindowStates = @{
-        FORCEMINIMIZE   = 11; HIDE            = 0
-        MAXIMIZE        = 3;  MINIMIZE        = 6
-        RESTORE         = 9;  SHOW            = 5
-        SHOWDEFAULT     = 10; SHOWMAXIMIZED   = 3
-        SHOWMINIMIZED   = 2;  SHOWMINNOACTIVE = 7
-        SHOWNA          = 8;  SHOWNOACTIVATE  = 4
-        SHOWNORMAL      = 1
-    }
-    Write-Verbose ("Set Window Style {1} on handle {0}" -f $MainWindowHandle, $($WindowStates[$style]))
-
-    $Win32ShowWindowAsync = Add-Type –memberDefinition @” 
-    [DllImport("user32.dll")] 
-    public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
-“@ -name “Win32ShowWindowAsync” -namespace Win32Functions –passThru
-
-    $Win32ShowWindowAsync::ShowWindowAsync($MainWindowHandle, $WindowStates[$Style]) | Out-Null
-}
-
 function Set-Active
 {
     param (
         [int] $ProcessPid
     )
 	AddValues "INFO" "PID ---> $ProcessPid"
-	Start-Sleep 3 #Avoid slow machine windows scheduler confusing... #IamDreaming....
-    $type = Add-Type -MemberDefinition @"
-    [DllImport("user32.dll")]
-    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-"@ -Name SetWindowPosition -Namespace SetWindowPos -Using System.Text -PassThru
-    
-   $handle = (Get-Process -id $ProcessPid).MainWindowHandle 
-   $OnTop = New-Object -TypeName System.IntPtr -ArgumentList (-1) 
-   $type::SetWindowPos($handle, $OnTop, 0, 0, 0, 0, 0x0003)
-   $OnBottom = New-Object -TypeName System.IntPtr -ArgumentList (-2) #<--- This stupid workaround is because of this stupid OS
-   $type::SetWindowPos($handle, $OnBottom, 0, 0, 0, 0, 0x0003) 
+	& $Path\SetActiveWindows.exe $ProcessPid 0
 }
 
-function Set-ActiveByHandler
-{
-    param (
-        [int] $WndHandler
-    )
-
-    $type = Add-Type -MemberDefinition @"
-    [DllImport("user32.dll")]
-    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-"@ -Name SetWindowPosition -Namespace SetWindowPos -Using System.Text -PassThru
-    
-	$OnWndHandler = New-Object -TypeName System.IntPtr -ArgumentList ($WndHandler)
-    $OnTop = New-Object -TypeName System.IntPtr -ArgumentList (-1) 
-    $type::SetWindowPos($OnWndHandler, $OnTop, 0, 0, 0, 0, 0x0003)
-	$OnBottom = New-Object -TypeName System.IntPtr -ArgumentList (-2) #<--- This stupid workaround is because of this stupid OS
-    $type::SetWindowPos($OnWndHandler, $OnBottom, 0, 0, 0, 0, 0x0003)
-}
-
-function Get-HandlerByTitle
-{
-    param (
-        [string] $WindowTitle
-    )
-	
-	$TypeDef = @"
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-namespace Api
-{
- public class WinStruct
- {
-   public string WinTitle {get; set; }
-   public int WinHwnd { get; set; }
- }
- public class ApiDef
- {
-   private delegate bool CallBackPtr(int hwnd, int lParam);
-   private static CallBackPtr callBackPtr = Callback;
-   private static List<WinStruct> _WinStructList = new List<WinStruct>();
-   [DllImport("User32.dll")]
-   [return: MarshalAs(UnmanagedType.Bool)]
-   private static extern bool EnumWindows(CallBackPtr lpEnumFunc, IntPtr lParam);
-   [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-   static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-   private static bool Callback(int hWnd, int lparam)
-   {
-	   StringBuilder sb = new StringBuilder(256);
-	   int res = GetWindowText((IntPtr)hWnd, sb, 256);
-	  _WinStructList.Add(new WinStruct { WinHwnd = hWnd, WinTitle = sb.ToString() });
-	   return true;
-   }   
-   public static List<WinStruct> GetWindows()
-   {
-	  _WinStructList = new List<WinStruct>();
-	  EnumWindows(callBackPtr, IntPtr.Zero);
-	  return _WinStructList;
-   }
- }
-}
-"@
-
-	#Add-Type -TypeDefinition $TypeDef -Language CSharpVersion3
-
-	([Api.Apidef]::GetWindows() | Where-Object { $_.WinTitle -like "*"+$WindowTitle+"*" }).WinHwnd
-}
 
 # Fonction de purge des processus
 Function PurgeProcess($aWindowName) 
@@ -228,10 +120,10 @@ Function ImageSearch
 		[int] $variance=0
     )
 
-    If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "$Image not found" }
+    If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearch: $Image not found" }
 	$ImageFound = 0
     for($i=1;$i -le $ImageSearchRetries;$i++)  {
-        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance
+        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance 0
         $State = [int]$out.Split('|')[0]
 		
 		if ($State -ne 0) {
@@ -264,7 +156,7 @@ Function ImageSearch
 	
 	if (($ImageFound -ne 1) -and ($noerror -eq 0))
 	{
-		$out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance
+		$out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance 0
         $State = [int]$out.Split('|')[0]
 		$xy=@(0,0)
 		if ($State -eq 0) {
@@ -303,7 +195,7 @@ Function ImageSearchLowPrecision
         [int] $variance=0
     )
 
-    If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "$Image not found" }
+    If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearchLowPrecision: $Image not found" }
     $ImageFound = 0
     for($i=1;$i -le $ImageSearchRetries;$i++)  {
         $out = & $Path"\GetImageLocation.exe" $Image 0 $variance 1

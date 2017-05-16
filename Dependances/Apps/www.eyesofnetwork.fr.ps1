@@ -1,11 +1,11 @@
-#*********************************************************************************************************************************************#
+﻿#*********************************************************************************************************************************************#
 #*                                                                                                                                           *#
 #* Powershell                                                                                                                                *#
 #* Author:LEVY Jean-Philippe                                                                                                                 *#
 #*                                                                                                                                           *#
 #* Script Function  : Scénario de test de connexion à la page Téléchargements de www.eyesofnetwork.fr                                        *#
 #* Expected results : Etat + Temps de lancement + Action                                                                                     *#
-#* Manual Execution : powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File "C:\eon\APX\EON4APPS\eon4apps.ps1" www.eyesofnetwork.fr 127.0.0.1 TEST
+#* Manual Execution : powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File "C:\eon\APX\EON4APPS\eon4apps.ps1" www.eyesofnetwork.fr 127.0.0.1 TEST 0
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
@@ -50,8 +50,11 @@ Foreach($svc in $Services) {
     $BorneSuperieure += $svc[2]  
 }
 
-AddValues "INFO" "Screen resolution adjustment"
+AddValues "INFO" "Screen resolution adjustment to ${ExpectedResolutionX}x${ExpectedResolutionY}"
 SetScreenResolution $ExpectedResolutionX $ExpectedResolutionY
+
+# --- Move to prober WorkingDirectory
+cd C:\eon\APX\EON4APPS\
 
 # --- Chargement de l'application
 Function LoadApp($Chrono)
@@ -63,11 +66,16 @@ Function LoadApp($Chrono)
         AddValues "INFO" "Lancement de l'application"
         
         # Client lourd avec arguments
-        if($ProgArg) { $app = Start-Process -PassThru -FilePath $ProgExe -ArgumentList $ProgArg -WorkingDirectory $ProgDir }   
-        
-	    # Client lourd sans arguments
-        elseif($ProgExe) { $app = Start-Process -PassThru -FilePath $ProgExe -WorkingDirectory $ProgDir }
-	
+        if($ProgArg) { 
+            $app = Start-Process -PassThru -FilePath $ProgExe -ArgumentList $ProgArg -WorkingDirectory $ProgDir
+            AddValues "INFO" "$ProgExe $ProgArg" 
+        }   
+        # Client lourd sans arguments
+        elseif($ProgExe) { 
+            $app = Start-Process -PassThru -FilePath $ProgExe -WorkingDirectory $ProgDir 
+            AddValues "INFO" "$ProgExe (NoArgument)" 
+        }
+    
         # Web
         else {         
             $ie = New-Object -COMObject InternetExplorer.Application
@@ -90,19 +98,19 @@ Function LoadApp($Chrono)
      # Accès page téléchargements
     $cmd = Measure-Command {
 
-        AddValues "INFO" "Maximize IE" #This line add a comment to the exection log (located in Apps after running.)
+        AddValues "INFO" "Maximize IE" 
+        #This line add a comment to the exection log (located in Apps after running.)
         # Here we try to take a look to "Windows Maximizer button". If we do not found it, it mean windows is already fullsized. 
         # Please note the 1 at the end of the ImageSearch invokation. It means do not thrown error on undetection, but return array [-1,-1]
-        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.com\maximize_button.bmp 5 0 $EonServ 250 1 10 0
+        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 10
         # Parameter are:
             # BMP file to look for on screen
             # 5: Means 5 retries before exit.
-            # 0: Usually set to ImageSearchVerbosity (value = 2), it mean no debug but screenshot if not found.
+            # 2: Usually set to ImageSearchVerbosity (value = 2), it mean no debug but screenshot if not found.
             # EonServ: Is the EON server hostname to send result and screenshot.
             # 250: Is number of millisecond to wait between each retries.
             # 1: Is to set "noerror" mode. It means image not found don't exit the script but return an array with -1,-1
             # 10: Means the search accept a variance of 10 grade of color for difference between actual screen and BMP to find.
-            # 0: Means it is need to use true color (i.e: 1 means Green drift of color) Drift could be used in case of hilgty white or black sample to find.
 
         $x = [int]$xy[0]
         $y = [int]$xy[1]
@@ -115,14 +123,23 @@ Function LoadApp($Chrono)
             ImageClick $xy 0 0
         }
 
-	    AddValues "INFO" "Try "
-        $xy=ImageSearch $Image_download_link $ImageSearchRetries $ImageSearchVerbosity $EonServ
+        AddValues "INFO" "Drill menu...."
+        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\action_menu.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
         ImageClick $xy 0 0
-        $xy=ImageSearch $Image_download_title $ImageSearchRetries $ImageSearchVerbosity $EonServ
-        Start-Sleep 2 
 
-        Send-Keys "XXXXXXX"
-        Send-SpecialKeys "{TAB}"
+        AddValues "INFO" "30 of tolerance because of transparency with move picture behind...."
+        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\download_title.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30 
+        ImageClick $xy 0 0
+        
+        AddValues "INFO" "Verify download page appears...."
+        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
+        ImageClick $xy 0 0
+
+        # Start-Sleep 2 
+
+        # Send-Keys "XXXXXXX"
+
+        # Send-SpecialKeys "{TAB}"
            
     }
     $Chrono += [math]::Round($cmd.TotalSeconds,6)

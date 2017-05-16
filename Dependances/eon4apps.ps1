@@ -67,11 +67,11 @@ Try {
 }
 Catch {
 
-    # Purge des processus
-	if($PurgeProcess -eq $true) {
-		AddValues "INFO" "Purge des processus"
-		PurgeProcess $WindowName
-	}
+ #    # Purge des processus
+	# if($PurgeProcess -eq $true) {
+	# 	AddValues "INFO" "Purge des processus"
+	# 	PurgeProcess $WindowName
+	# }
 		
     # Ajouter le service en cours en erreur
     $ErrorMessage = $_.Exception.Message
@@ -110,12 +110,6 @@ else
 	$Status = "OK"
     AddValues "INFO" "Envoi de la trap en fonctionnement normal"
 }
-
-# Purge des processus
-if($PurgeProcess -eq $true) {
-	AddValues "INFO" "Purge des processus"
-	PurgeProcess $WindowName
-}
 	
 # Envoi de la trap
 $Information = $Status + " : " + $Service + " " + $PerfData[0] + "s" 
@@ -129,9 +123,17 @@ AddValues "INFO" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -host
 AddValues "INFO" "Restore screen resolution"
 $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
+# Purge des processus
+if($PurgeProcess -eq $true) {
+    AddValues "INFO" "Purge des processus"
+    PurgeProcess $WindowName
+}
+
 # Fin de la sonde
 AddValues "INFO" "Fin de la sonde"
+
 exit 0
+
 
 #*********************************************************************************************************************************#
 #*                                                                                                                               *#
