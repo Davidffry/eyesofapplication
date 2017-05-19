@@ -26,6 +26,7 @@ Copy-Item -Path $Path"\Dependances\SetScreenSetting.exe" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\SetActiveWindows.exe" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\SetMaximizedWindows.exe" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\GetRunner.exe" -Destination $ApxPath
+Copy-Item -Path $Path"\Dependances\EyesOfApplicationGUI.exe" -Destination $ApxPath
 
 
 SCHTASKS /Create /SC MINUTE /MO 5 /TN EON4APPS /TR "powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File '$Sonde' www.eyesofnetwork.fr $EonServ $EonToken"
