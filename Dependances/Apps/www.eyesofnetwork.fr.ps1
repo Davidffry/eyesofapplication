@@ -5,7 +5,6 @@
 #*                                                                                                                                           *#
 #* Script Function  : Scénario de test de connexion à la page Téléchargements de www.eyesofnetwork.fr                                        *#
 #* Expected results : Etat + Temps de lancement + Action                                                                                     *#
-#* Manual Execution : powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File "C:\eon\APX\EON4APPS\eon4apps.ps1" www.eyesofnetwork.fr 127.0.0.1 TEST 0
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
@@ -16,8 +15,9 @@
 $ExpectedResolutionX="1024"
 $ExpectedResolutionY="768"
 
-# --- Gestion des fenêtres
-$WindowName = "iexplore" # Nom de la fenêtre
+# Required field to run via GUI
+$TargetedEon="127.0.0.1"
+$NrdpToken="TEST"
 
 # --- Web
 $Url = "http://www.eyesofnetwork.fr"
@@ -88,9 +88,6 @@ Function LoadApp($Chrono)
 
         # Sélection de la fenêtre
         Set-Active $app.Id
-
-        # Sélection de la fenêtre avec Maximization
-        #Set-Active-Maximized $app.Id
     
 #****************************************************************MODIFICATIONS ICI*************************************************************
 #**********************************************************************************************************************************************

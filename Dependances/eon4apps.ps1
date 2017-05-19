@@ -44,9 +44,30 @@ If (!(Test-Path $InitApp)){ throw [System.IO.FileNotFoundException] "$InitApp no
 #*********************************************************************************************************************************#    
 
 # Création du fichier de log
-$Log = $PathApps + $App + ".log"
+ $out = & $ScriptPath"\GetRunner.exe" 0
+        $State = [int]$out.Split('|')[0]
+        
+        if ($State -ne 0) {
+                $domain = $out.Split('|')[1]
+                $username = $out.Split('|')[2]
+                $computer = $out.Split('|')[3] 
+
+                $LogPath = $ScriptPath + "\Execlog\" + $domain + "\" + $username + "\" + $computer
+                
+                If(!(test-path $LogPath)) {
+                    New-Item -ItemType Directory -Force -Path $LogPath
+                }
+
+                $Log = $LogPath + "\" + $App + ".log" # Continue to use Log variable in rest of scripts.
+
+        } else {
+            throw [System.IO.FileNotFoundException] "GetRunner could not determine environnement." 
+        }
+
+
 New-Item $Log -Type file -force -value "" |out-null
 AddValues "INFO" "Démarrage de la sonde"
+
 [system.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | out-null
 [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(0,0)
 
