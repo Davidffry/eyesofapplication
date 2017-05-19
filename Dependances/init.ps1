@@ -95,6 +95,14 @@ function Set-Active
 	& $Path\SetActiveWindows.exe $ProcessPid 0
 }
 
+function Set-Active-Maximized
+{
+    param (
+        [int] $ProcessPid
+    )
+    AddValues "INFO" "PID ---> $ProcessPid"
+    & $Path\SetMaximizedWindows.exe $ProcessPid 0
+}
 
 # Fonction de purge des processus
 Function PurgeProcess($aWindowName) 
