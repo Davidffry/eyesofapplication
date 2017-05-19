@@ -102,7 +102,7 @@ Function LoadApp($Chrono)
         #This line add a comment to the exection log (located in Apps after running.)
         # Here we try to take a look to "Windows Maximizer button". If we do not found it, it mean windows is already fullsized. 
         # Please note the 1 at the end of the ImageSearch invokation. It means do not thrown error on undetection, but return array [-1,-1]
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 10
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 20
         # Parameter are:
             # BMP file to look for on screen
             # 5: Means 5 retries before exit.
@@ -124,7 +124,7 @@ Function LoadApp($Chrono)
         }
 
         AddValues "INFO" "Drill menu...."
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\action_menu.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\action_menu.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30
         ImageClick $xy 0 0
 
         AddValues "INFO" "30 of tolerance because of transparency with move picture behind...."
@@ -132,7 +132,7 @@ Function LoadApp($Chrono)
         ImageClick $xy 0 0
         
         AddValues "INFO" "Verify download page appears...."
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30
         ImageClick $xy 0 0
 
         # Start-Sleep 2 
