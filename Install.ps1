@@ -11,6 +11,7 @@ New-Item "C:\eon\APX" -Type directory
 New-Item "C:\eon\APX\EON4APPS" -Type directory
 Copy-Item -Path $Path"\Dependances\Apps" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Docs" -Destination $ApxPath -Recurse
+Copy-Item -Path $Path"\Dependances\Execlog" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Images" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\log" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\sshkey" -Destination $ApxPath -Recurse
@@ -23,6 +24,7 @@ Copy-Item -Path $Path"\Dependances\pscp.exe" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\ps_nrdp.ps1" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\SetScreenSetting.exe" -Destination $ApxPath
 Copy-Item -Path $Path"\Dependances\SetActiveWindows.exe" -Destination $ApxPath
+Copy-Item -Path $Path"\Dependances\SetMaximizedWindows.exe" -Destination $ApxPath
 
 
 SCHTASKS /Create /SC MINUTE /MO 5 /TN EON4APPS /TR "powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File '$Sonde' www.eyesofnetwork.fr $EonServ $EonToken"
