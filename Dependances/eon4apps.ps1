@@ -76,11 +76,11 @@ $CheminDossierImages = $CheminFichierImages + $Service + "\"
 New-Item $CheminDossierImages -Type directory -force -value "" |out-null
 Get-ChildItem $CheminDossierImages -Filter *.bmp |foreach { $name = $_.BaseName ; New-Variable -Force -Name "Image_${name}" -Value $_.FullName }
 
-# Purge des processus
-# if($PurgeProcess -eq $true) {
-# 	AddValues "INFO" "Purge des processus"
-# 	PurgeProcess $WindowName
-# }
+#Purge des processus
+if($PurgeProcess -eq $true) {
+	AddValues "INFO" "Purge des processus"
+	PurgeProcess $WindowName
+}
 
 # Chargement de l'application
 Try {
@@ -139,10 +139,10 @@ AddValues "INFO" "Restore screen resolution"
 $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
 # # Purge des processus
-# if($PurgeProcess -eq $true) {
-#     AddValues "INFO" "Purge des processus"
-#     PurgeProcess $WindowName
-# }
+if($PurgeProcess -eq $true) {
+    AddValues "INFO" "Purge des processus"
+    PurgeProcess $WindowName
+}
 
 # Fin de la sonde
 AddValues "INFO" "Fin de la sonde"
