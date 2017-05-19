@@ -9,7 +9,8 @@
 
 #********************************************************************INITIALISATIONS***********************************************************
 
-$Path = "C:\eon\APX\EON4APPS\"#Ne pas modifier
+$Path = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path)
+$Path = $Path + "\" #Ne pas modifier
 $PathApps = $Path + "Apps\"#Ne pas modifier
 $CheminFichierImages = $Path + "Images\"#Ne pas modifier
 $Status = "OK"#Ne pas modifier-initialisation

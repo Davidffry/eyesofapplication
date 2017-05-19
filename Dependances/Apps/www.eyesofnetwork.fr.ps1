@@ -25,7 +25,7 @@ $Url = "http://www.eyesofnetwork.fr"
 # --- Client lourd
 $ProgExe = "C:\Program Files (x86)\Internet Explorer\iexplore.exe" # Executable
 $ProgArg = $Url # Arguments de l'exéctuable
-$ProgDir = "C:\eon\APX\EON4APPS\" # Dossier dans lequel démarrer le programme
+$ProgDir = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path) # Dossier dans lequel démarrer le programme
 
 # --- Authentification
 $User = ""
@@ -53,14 +53,14 @@ Foreach($svc in $Services) {
 AddValues "INFO" "Screen resolution adjustment to ${ExpectedResolutionX}x${ExpectedResolutionY}"
 SetScreenResolution $ExpectedResolutionX $ExpectedResolutionY
 
-# --- Move to prober WorkingDirectory
-cd C:\eon\APX\EON4APPS\
+# Do not remove. This cd is used to relative path access...
+cd $Path
 
 # --- Chargement de l'application
 Function LoadApp($Chrono)
 {
 
-    # Lancement de l'application 
+     # Lancement de l'application 
     $cmd = Measure-Command {
     
         AddValues "INFO" "Lancement de l'application"
@@ -102,7 +102,7 @@ Function LoadApp($Chrono)
         #This line add a comment to the exection log (located in Apps after running.)
         # Here we try to take a look to "Windows Maximizer button". If we do not found it, it mean windows is already fullsized. 
         # Please note the 1 at the end of the ImageSearch invokation. It means do not thrown error on undetection, but return array [-1,-1]
-        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 10
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 10
         # Parameter are:
             # BMP file to look for on screen
             # 5: Means 5 retries before exit.
@@ -124,15 +124,15 @@ Function LoadApp($Chrono)
         }
 
         AddValues "INFO" "Drill menu...."
-        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\action_menu.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\action_menu.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
         ImageClick $xy 0 0
 
         AddValues "INFO" "30 of tolerance because of transparency with move picture behind...."
-        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\download_title.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30 
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_title.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30 
         ImageClick $xy 0 0
         
         AddValues "INFO" "Verify download page appears...."
-        $xy=ImageSearch C:\eon\APX\EON4APPS\Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
+        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0
         ImageClick $xy 0 0
 
         # Start-Sleep 2 

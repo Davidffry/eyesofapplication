@@ -29,7 +29,7 @@ If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not foun
 . $Init
 
 # Purge
-Get-ChildItem -Path $Path\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
+Get-ChildItem -Path $ScriptPath\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
 # Chargement de l'application
 $InitApp = $PathApps + $App + ".ps1"
@@ -77,10 +77,10 @@ New-Item $CheminDossierImages -Type directory -force -value "" |out-null
 Get-ChildItem $CheminDossierImages -Filter *.bmp |foreach { $name = $_.BaseName ; New-Variable -Force -Name "Image_${name}" -Value $_.FullName }
 
 # Purge des processus
-if($PurgeProcess -eq $true) {
-	AddValues "INFO" "Purge des processus"
-	PurgeProcess $WindowName
-}
+# if($PurgeProcess -eq $true) {
+# 	AddValues "INFO" "Purge des processus"
+# 	PurgeProcess $WindowName
+# }
 
 # Chargement de l'application
 Try {
@@ -88,12 +88,6 @@ Try {
 }
 Catch {
 
- #    # Purge des processus
-	# if($PurgeProcess -eq $true) {
-	# 	AddValues "INFO" "Purge des processus"
-	# 	PurgeProcess $WindowName
-	# }
-		
     # Ajouter le service en cours en erreur
     $ErrorMessage = $_.Exception.Message
     AddValues "ERROR" $ErrorMessage
@@ -144,11 +138,11 @@ AddValues "INFO" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -host
 AddValues "INFO" "Restore screen resolution"
 $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
-# Purge des processus
-if($PurgeProcess -eq $true) {
-    AddValues "INFO" "Purge des processus"
-    PurgeProcess $WindowName
-}
+# # Purge des processus
+# if($PurgeProcess -eq $true) {
+#     AddValues "INFO" "Purge des processus"
+#     PurgeProcess $WindowName
+# }
 
 # Fin de la sonde
 AddValues "INFO" "Fin de la sonde"
