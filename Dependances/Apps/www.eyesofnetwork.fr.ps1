@@ -23,7 +23,7 @@ $NrdpToken="TEST"
 $Url = "http://www.eyesofnetwork.fr"
 
 # --- Client lourd
-$ProgExe = "C:\Program Files\Mozilla Firefox\firefox.exe" # Executable
+$ProgExe = "C:\Program Files (x86)\Mozilla Firefox\firefox.exe" # Executable
 $ProgArg = $Url # Arguments de l'exéctuable
 $ProgDir = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path) # Dossier dans lequel démarrer le programme
 
@@ -102,10 +102,10 @@ Function LoadApp($Chrono)
         #This line add a comment to the exection log (located in Apps after running.)
         # Here we try to take a look to "Windows Maximizer button". If we do not found it, it mean windows is already fullsized. 
         # Please note the 1 at the end of the ImageSearch invokation. It means do not thrown error on undetection, but return array [-1,-1]
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\maximize_button.bmp 10 2 $EonServ 250 1 10
+        $xy=ImageSearch $Image_maximize_button 10 2 $EonServ 250 1 10
         # Parameter are:
             # BMP file to look for on screen
-            # 5: Means 5 retries before exit.
+            # 10: Means 5 retries before exit.
             # 2: Usually set to ImageSearchVerbosity (value = 2), it mean no debug but screenshot if not found.
             # EonServ: Is the EON server hostname to send result and screenshot.
             # 250: Is number of millisecond to wait between each retries.
@@ -124,11 +124,11 @@ Function LoadApp($Chrono)
         }
 
         AddValues "INFO" "30 of tolerance because of transparency...."
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_title.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30 
+        $xy=ImageSearch $Image_download_title $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30 
         ImageClick $xy 0 0
         
         AddValues "INFO" "Verify download page appears...."
-        $xy=ImageSearch Images\www.eyesofnetwork.fr\download_page.bmp $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 10
+        $xy=ImageSearch $Image_download_page $ImageSearchRetries $ImageSearchVerbosity $EonServ 250 0 30
         ImageClick $xy 0 0
 
         # Start-Sleep 2 
