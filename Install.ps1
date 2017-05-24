@@ -3,12 +3,11 @@ $EonServ = [Microsoft.VisualBasic.Interaction]::InputBox("IP du serveur EON", "C
 $EonToken = [Microsoft.VisualBasic.Interaction]::InputBox("Token NRDP", "Configuration NRDP", "")
 
 $Path = Get-Location
-$ApxPath = "C:\eon\APX\EON4APPS\"
+$ApxPath = "C:\Axians\EOA\"
 $Purge = $ApxPath + "purge.ps1"
 $Sonde = $ApxPath + "eon4apps.ps1"
 
-New-Item "C:\eon\APX" -Type directory
-New-Item "C:\eon\APX\EON4APPS" -Type directory
+New-Item $ApxPath -Type directory
 Copy-Item -Path $Path"\Dependances\Apps" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Docs" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Execlog" -Destination $ApxPath -Recurse
