@@ -124,13 +124,14 @@ Function ImageSearch
 		[string] $EonSrv,
 		[int] $Wait=250,
 		[int] $noerror=0,
-		[int] $variance=0
+		[int] $variance=0,
+		[int] $green=0
     )
 
     If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearch: $Image not found" }
 	$ImageFound = 0
     for($i=1;$i -le $ImageSearchRetries;$i++)  {
-        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance 0
+        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance $green
         $State = [int]$out.Split('|')[0]
 		
 		if ($State -ne 0) {
@@ -163,7 +164,7 @@ Function ImageSearch
 	
 	if (($ImageFound -ne 1) -and ($noerror -eq 0))
 	{
-		$out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance 0
+		$out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance $green
         $State = [int]$out.Split('|')[0]
 		$xy=@(0,0)
 		if ($State -eq 0) {
@@ -193,73 +194,19 @@ Function ImageSearchLowPrecision
 {
 
     param (
-        [string] $Image,
-        [int] $ImageSearchRetries,
-        [int] $ImageSearchVerbosity,
-        [string] $EonSrv,
-        [int] $Wait=250,
-        [int] $noerror=0,
-        [int] $variance=0
+		[string] $Image,
+		[int] $ImageSearchRetries,
+		[int] $ImageSearchVerbosity,
+		[string] $EonSrv,
+		[int] $Wait=250,
+		[int] $noerror=0,
+		[int] $variance=0,
+		[int] $green=1
     )
+	
+	$xy=ImageSearch $Image $ImageSearchRetries $ImageSearchVerbosity $EonSrv $Wait $noerror $variance $green
 
-    If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearchLowPrecision: $Image not found" }
-    $ImageFound = 0
-    for($i=1;$i -le $ImageSearchRetries;$i++)  {
-        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance 1
-        $State = [int]$out.Split('|')[0]
-        
-        if ($State -ne 0) {
-        # Image trouvée
-        AddValues "INFO" "ImageSearchLowPrecision ---> $out"
-        $xx1 = [int]$out.Split('|')[1] 
-        $yy1 = [int]$out.Split('|')[2]
-        $tx = [int]$out.Split('|')[3]
-        $ty = [int]$out.Split('|')[4]
-        
-        $modulox = $tx % 2
-        $moduloy = $ty % 2
-        
-        if ( $modulox -ne 0) { $tx = $tx - $modulox }
-        if ( $moduloy -ne 0) { $ty = $ty - $moduloy }
-        
-        $OffSetX = $tx / 2
-        $OffSetY = $ty / 2
-        
-        $x1 = $OffSetX + $xx1
-        $y1 = $OffSetY + $yy1
-        $ImageFound = 1
-        $xy=@($x1,$y1)
-        break; 
-        #Image trouvée, je sors.
-        }
-        AddValues "WARN" "Image $Image not found in screen (try $i)"
-        start-sleep -Milliseconds $Wait
-    }
-    
-    if (($ImageFound -ne 1) -and ($noerror -eq 0))
-    {
-        $out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance 1
-        $State = [int]$out.Split('|')[0]
-        $xy=@(0,0)
-        if ($State -eq 0) {
-            # Image non trouvée
-            $ScrShot = $out.Split('|')[1] 
-            $BaseFileName = [System.IO.Path]::GetFileNameWithoutExtension($ScrShot)
-            $BaseFileNameExt = [System.IO.Path]::GetExtension($ScrShot)
-            #
-            # Send image to EON server.
-            AddValues "ERROR" "Send the file: ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot ${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
-            $SendFile = & ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot "${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
-            $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
-            throw [System.IO.FileNotFoundException] "$Image not found in screen: <![CDATA[<a href='/eon4apps/$BaseFileName$BaseFileNameExt' target='_blank'>$ScrShot</a>]]>"
-        }
-    }
-    elseif (($ImageFound -ne 1) -and ($noerror -eq 1))
-    {
-        $xy=@(-1,-1)
-    }
-      
-    return $xy
+    return $xy 
 
 }
 
