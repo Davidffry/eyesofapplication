@@ -106,10 +106,8 @@ function Set-Active-Maximized
 }
 
 # Fonction de purge des processus
-Function PurgeProcess($aWindowName) 
+Function PurgeProcess
 {  
-    Get-Process -ErrorAction SilentlyContinue $aWindowName | Foreach-Object { $_.CloseMainWindow() } |out-null
-    Get-Process -ErrorAction SilentlyContinue $aWindowName | stop-process -Force |out-null
     Get-Process -ErrorAction SilentlyContinue | Where-Object {$_.MainWindowTitle -ne "" -or $_.ProcessName -eq "powershell"}  | ?{$_.ID -ne $pid} | stop-process -Force |out-null
     (New-Object -comObject Shell.Application).Windows() | foreach-object {$_.quit()} |out-null
     start-sleep 2

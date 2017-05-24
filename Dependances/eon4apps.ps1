@@ -79,7 +79,7 @@ Get-ChildItem $CheminDossierImages -Filter *.bmp |foreach { $name = $_.BaseName 
 #Purge des processus
 if($PurgeProcess -eq $true) {
 	AddValues "INFO" "Purge des processus"
-	PurgeProcess $WindowName
+	PurgeProcess
 }
 
 # Chargement de l'application
@@ -141,7 +141,7 @@ $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configura
 # # Purge des processus
 if($PurgeProcess -eq $true) {
     AddValues "INFO" "Purge des processus"
-    PurgeProcess $WindowName
+    PurgeProcess
 }
 
 # Fin de la sonde
