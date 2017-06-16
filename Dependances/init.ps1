@@ -177,7 +177,8 @@ Function ImageSearch
 			AddValues "ERROR" "Send the file: ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot ${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
 			$SendFile = & ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot "${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
             $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
-			throw [System.IO.FileNotFoundException] "$Image not found in screen: <![CDATA[<a href='/eon4apps/$BaseFileName$BaseFileNameExt' target='_blank'>$ScrShot</a>]]>"
+			$ConcatUrlSend = $Image + ' not found in screen: <a href="/eon4apps/' + $BaseFileName + $BaseFileNameExt + '" target="_blank">' + $ScrShot + '</a>'
+			throw [System.IO.FileNotFoundException] "$ConcatUrlSend"
 		}
 	}
     elseif (($ImageFound -ne 1) -and ($noerror -eq 1))
