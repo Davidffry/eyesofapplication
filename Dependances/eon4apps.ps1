@@ -32,7 +32,12 @@ If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not foun
 Get-ChildItem -Path $ScriptPath\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
 # Chargement de l'application
-$InitApp = $PathApps + $App + ".ps1"
+$TempPathAppsLnk = $PathApps + $App + ".ps1.lnk"
+if ( (Test-Path $TempPathAppsLnk) ) { 
+    $InitApp = $PathApps + $App + ".ps1.lnk"
+} else {
+    $InitApp = $PathApps + $App + ".ps1"
+}
 $PassApp = $PathApps + $App + ".pass"
 If (!(Test-Path $InitApp)){ throw [System.IO.FileNotFoundException] "$InitApp not found" }
 . $InitApp
