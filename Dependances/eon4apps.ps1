@@ -16,7 +16,7 @@ Param(
 	[string]$EonServ="",
 	[string]$EonToken="",
 	[string]$EonUrl="https://${EonServ}/nrdp",
-	[bool]$PurgeProcess=$true
+	[string]$PurgeProcess="True"
 )
 if(!$EonServ -or !$EonToken) { throw "Please define EonServ and EonToken" }
 
@@ -28,13 +28,29 @@ $Init = $ScriptPath + "\init.ps1"
 If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not found" }
 . $Init
 
+AddValues "INFO" "Chargement Init.ps1 OK"
+AddValues "INFO" "Current call is: $App $EonServ $EonToken $EonUrl $PurgeProcess."
 # Purge
 Get-ChildItem -Path $ScriptPath\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
+# Determine if User (GUI) or Sched
+$FromGUI = $false
+if ( ($App -match [regex]'^user_')) {
+    $FromGUI = $true
+}
+
 # Chargement de l'application
-$InitApp = $PathApps + $App + ".ps1"
+$TempPathAppsLnk = $PathApps + $App + ".ps1.lnk"
+if ( (Test-Path $TempPathAppsLnk) ) { 
+    $InitApp = $PathApps + $App + ".ps1"
+    $InitApp = $InitApp -replace "user_", ""
+} else {
+    $InitApp = $PathApps + $App + ".ps1"
+}
+
 $PassApp = $PathApps + $App + ".pass"
 If (!(Test-Path $InitApp)){ throw [System.IO.FileNotFoundException] "$InitApp not found" }
+AddValues "INFO" "Chargement InitApp... ($InitApp)"
 . $InitApp
 
 #*********************************************************************************************************************************#
@@ -77,7 +93,7 @@ New-Item $CheminDossierImages -Type directory -force -value "" |out-null
 Get-ChildItem $CheminDossierImages -Filter *.bmp |foreach { $name = $_.BaseName ; New-Variable -Force -Name "Image_${name}" -Value $_.FullName }
 
 #Purge des processus
-if($PurgeProcess -eq $true) {
+if($PurgeProcess == "True") {
 	AddValues "INFO" "Purge des processus"
 	PurgeProcess
 }
@@ -97,9 +113,15 @@ Catch {
 
     # Envoi de la trap
     AddValues "ERROR" "Envoi de la trap en erreur"
- 	$Send_Trap = & ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
-	AddValues "ERROR" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
-	AddValues "INFO" "Restore screen resolution"
+    if ( $FromGUI -eq $false ) {
+ 	  $Send_Trap = & powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
+	   AddValues "ERROR" "powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
+	}
+    if ( $FromGUI -eq $true ) {
+       $Send_Trap = & powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${App}" -state "${Status}" -output "${Information}"
+       AddValues "ERROR" "powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${App}' -state '${Status}' -output '${Information}'"
+    }
+    AddValues "INFO" "Restore screen resolution"
     $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
     exit 2
 
@@ -132,14 +154,20 @@ if($PerfData[2] -ne "") { $Information = $Information + " " + $PerfData[2] }
 if($PerfData[3] -ne "") { $Information = $Information + " " + $PerfData[3] }
 $Information = $Information + $PerfData[1]
 AddValues "INFO" $Information
-$Send_Trap = & ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
-AddValues "INFO" "${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
+if ( $FromGUI -eq $false ) {
+    $Send_Trap = &  powershell -ExecutionPolicy ByPass -File  ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
+    AddValues "INFO" "powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
+}
+if ( $FromGUI -eq $true ) {
+    $Send_Trap = &  powershell -ExecutionPolicy ByPass -File  ${Path}ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${App}" -state "${Status}" -output "${Information}"
+    AddValues "INFO" "powershell -ExecutionPolicy ByPass -File ${Path}ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${App}' -state '${Status}' -output '${Information}'"
+}
 
 AddValues "INFO" "Restore screen resolution"
 $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
 # # Purge des processus
-if($PurgeProcess -eq $true) {
+if($PurgeProcess == "True") {
     AddValues "INFO" "Purge des processus"
     PurgeProcess
 }
