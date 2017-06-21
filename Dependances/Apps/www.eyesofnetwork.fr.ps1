@@ -18,6 +18,7 @@ $ExpectedResolutionY="768"
 # Required field to run via GUI
 $TargetedEon="127.0.0.1"
 $NrdpToken="TEST"
+$GUI_Equipement_InEON = "SONDE_SVP"
 
 # --- Web
 $Url = "http://www.eyesofnetwork.fr"
@@ -41,80 +42,12 @@ $Services = ("Launch","10","15"),
 $ImageSearchRetries = "20"  # Nombre d'essais lors de la recherche d'une image
 $ImageSearchVerbosity = "2" # Niveau de log de la recherche d'image
 
-#**********************************************************************************************************************************************
-#**********************************************************************************************************************************************
-
-# --- Definition des seuils globaux
-Foreach($svc in $Services) { 
-    $BorneInferieure += $svc[1]  
-    $BorneSuperieure += $svc[2]  
-}
-
-AddValues "INFO" "Screen resolution adjustment to ${ExpectedResolutionX}x${ExpectedResolutionY}"
-SetScreenResolution $ExpectedResolutionX $ExpectedResolutionY
-
-# Do not remove. This cd is used to relative path access...
-cd $Path
-
-# --- Chargement de l'application
-Function LoadApp($Chrono)
-{
-
-     # Lancement de l'application 
-    $cmd = Measure-Command {
-    
-        AddValues "INFO" "Lancement de l'application"
-        
-        # Client lourd avec arguments
-        if($ProgArg) { 
-            $app = Start-Process -PassThru -FilePath $ProgExe -ArgumentList $ProgArg -WorkingDirectory $ProgDir
-            AddValues "INFO" "$ProgExe $ProgArg" 
-        }   
-        # Client lourd sans arguments
-        elseif($ProgExe) { 
-            $app = Start-Process -PassThru -FilePath $ProgExe -WorkingDirectory $ProgDir 
-            AddValues "INFO" "$ProgExe (NoArgument)" 
-        }
-    
-        # Web
-        else {         
-            $ie = New-Object -COMObject InternetExplorer.Application
-            $ie.visible = $true
-            $ie.fullscreen = $true
-            $ie.Navigate($Url)
-            while ($ie.Busy -eq $true) { start-sleep 1; }
-            $app = Get-Process -Name iexplore | Where-Object {$_.MainWindowHandle -eq $ie.HWND}
-        }
-
-        # Sélection de la fenêtre
-        Set-Active $app.Id
-    
-#****************************************************************MODIFICATIONS ICI*************************************************************
-#**********************************************************************************************************************************************
-
-    }
-    $Chrono += [math]::Round($cmd.TotalSeconds,6)
-    
-     # Accès page téléchargements
+Function RunScenario($Chrono)
+{ 
     $cmd = Measure-Command {
 
         AddValues "INFO" "Maximize FF" 
-        #This line add a comment to the exection log (located in Apps after running.)
-        # Here we try to take a look to "Windows Maximizer button". If we do not found it, it mean windows is already fullsized. 
-        # Please note the 1 at the end of the ImageSearch invokation. It means do not thrown error on undetection, but return array [-1,-1]
-        $xy=ImageSearch $Image_maximize_button 10 2 $EonServ 250 1 10
-        # Parameter are:
-            # BMP file to look for on screen
-            # 10: Means 5 retries before exit.
-            # 2: Usually set to ImageSearchVerbosity (value = 2), it mean no debug but screenshot if not found.
-            # EonServ: Is the EON server hostname to send result and screenshot.
-            # 250: Is number of millisecond to wait between each retries.
-            # 1: Is to set "noerror" mode. It means image not found don't exit the script but return an array with -1,-1
-            # 10: Means the search accept a variance of 10 grade of color for difference between actual screen and BMP to find.
-
-        $x = [int]$xy[0]
-        $y = [int]$xy[1]
-        if (($x -eq -1) -and ($y -eq -1))
+        if (ImageNotExist $Image_maximize_button 10)
         {
             AddValues "INFO" "Already in fullsize"
         } else

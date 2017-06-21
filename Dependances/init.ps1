@@ -321,3 +321,24 @@ Function SetScreenResolution
         throw [System.IO.FileNotFoundException] "The resolution $ResolutionX x $ResolutionY cannot be set on this workstation."
     }
 }
+
+# Function to check if Image is foundable whitout exit.
+# Return 0 if image exist. 1 if image is not foundable.
+Function ImageNotExist
+{
+    param (
+    [Parameter(Mandatory=$true)][string]$ImageToFind,
+    [Parameter(Mandatory=$true)][string]$Retries,
+    [bool]$returncode=0
+    )
+
+    $xy=ImageSearch $ImageToFind $Retries 2 $EonServ 250 1 30
+    $x = [int]$xy[0]
+    $y = [int]$xy[1]
+    if (($x -eq -1) -and ($y -eq -1))
+    {
+        $returncode=1 
+    } 
+
+    return $returncode
+}
