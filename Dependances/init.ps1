@@ -128,6 +128,7 @@ Function ImageSearch
 		[int] $green=0
     )
 
+    AddValues "INFO" "(ImageSearch) Looking for image: $Image."
     If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearch: $Image not found" }
 	$ImageFound = 0
     for($i=1;$i -le $ImageSearchRetries;$i++)  {
@@ -329,16 +330,18 @@ Function ImageNotExist
     param (
     [Parameter(Mandatory=$true)][string]$ImageToFind,
     [Parameter(Mandatory=$true)][string]$Retries,
-    [bool]$returncode=0
+    [bool]$returncode=$false
     )
 
     $xy=ImageSearch $ImageToFind $Retries 2 $EonServ 250 1 30
+    AddValues "INFO" "(ImageNotExist) out of image Search."
     $x = [int]$xy[0]
     $y = [int]$xy[1]
     if (($x -eq -1) -and ($y -eq -1))
     {
-        $returncode=1 
+        $returncode=$true
+        AddValues "INFO" "(ImageNotExist)Image $ImageToFind not found."
     } 
-
-    return $returncode
+    AddValues "INFO" "(ImageNotExist) Image $ImageToFind was found."
+    return $xy
 }
