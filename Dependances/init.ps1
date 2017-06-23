@@ -345,3 +345,9 @@ Function ImageNotExist
     AddValues "INFO" "(ImageNotExist) Image $ImageToFind was found."
     return $xy
 }
+
+function Minimize-All-Windows
+{
+    AddValues "INFO" "Minimize all windows."
+    & $Path\MinimizeAllWindows.exe
+}
