@@ -3,27 +3,27 @@
 #* Powershell                                                                                                                                *#
 #* Author:LEVY Jean-Philippe                                                                                                                 *#
 #*                                                                                                                                           *#
-#* Script Function: Variables et Fonctions pour EON4APPPS                                                                                    *#
+#* Script Function: Variables and Fonctions for EON4APPPS                                                                                    *#
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
 #********************************************************************INITIALISATIONS***********************************************************
 
 $Path = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path)
-$Path = $Path + "\" #Ne pas modifier
-$PathApps = $Path + "Apps\"#Ne pas modifier
-$CheminFichierImages = $Path + "Images\"#Ne pas modifier
-$Status = "OK"#Ne pas modifier-initialisation
-$Information = ""#Ne pas modifier
-$Chrono=@()#Ne pas modifier
-$BorneInferieure = 0#Ne pas modifier
-$BorneSuperieure = 0#Ne pas modifier
-$PerfData = " | "#Ne pas modifier
-$PurgeDelay = 60#Ne pas modifier
+$Path = $Path + "\" #Don't modify
+$PathApps = $Path + "Apps\"#Don't modify
+$CheminFichierImages = $Path + "Images\"#Don't modify
+$Status = "OK"#Don't modify-initialisation
+$Information = ""#Don't modify
+$Chrono=@()#Don't modify
+$BorneInferieure = 0#Don't modify
+$BorneSuperieure = 0#Don't modify
+$PerfData = " | "#Don't modify
+$PurgeDelay = 60#Don't modify
 
-#********************************************************************FONCTIONS*****************************************************************
+#********************************************************************FuNCTIONS*****************************************************************
 
-# Fonction qui ajoute les valeurs dans un fichier
+# Function adding the values in a file
 Function AddValues($aNiveau, $aMsg)
 {
     $aDate = Get-Date
@@ -33,7 +33,7 @@ Function AddValues($aNiveau, $aMsg)
 }
 
 
-# Fonction pour cliquez sur les liens avec la souris
+# Function to click on the links with the mouse
 Function Click-MouseButton
 {
     param([string]$Button)
@@ -74,7 +74,7 @@ Function Send-Keys
     Start-sleep 1
 }
 
-# Fonction pour move the mouse
+# Function to move the mouse
 Function Move-Mouse ($AbsoluteX, $AbsoluteY)
 {
     If (($AbsoluteX -ne $null) -and ($AbsoluteY -ne $null)) {
@@ -105,7 +105,7 @@ function Set-Active-Maximized
     & $Path\SetMaximizedWindows.exe $ProcessPid 0
 }
 
-# Fonction de purge des processus
+# Function to purge processes
 Function PurgeProcess
 {  
     Get-Process -ErrorAction SilentlyContinue | Where-Object {$_.MainWindowTitle -ne "" -or $_.ProcessName -eq "powershell"}  | ?{$_.ID -ne $pid} | stop-process -Force |out-null
@@ -113,7 +113,7 @@ Function PurgeProcess
     start-sleep 2
 }
 
-# Function de recherche image
+# Function to search image
 Function ImageSearch
 {
 
@@ -136,7 +136,7 @@ Function ImageSearch
         $State = [int]$out.Split('|')[0]
 		
 		if ($State -ne 0) {
-		# Image trouvée
+		# Image found
 		AddValues "INFO" "ImageSearch ---> $out"
 		$xx1 = [int]$out.Split('|')[1] 
 	    $yy1 = [int]$out.Split('|')[2]
@@ -157,7 +157,7 @@ Function ImageSearch
 		$ImageFound = 1
 		$xy=@($x1,$y1)
 		break; 
-		#Image trouvée, je sors.
+		#Image found, I go out
 		}
         AddValues "WARN" "Image $Image not found in screen (try $i)"
         start-sleep -Milliseconds $Wait
@@ -169,12 +169,12 @@ Function ImageSearch
         $State = [int]$out.Split('|')[0]
 		$xy=@(0,0)
 		if ($State -eq 0) {
-			# Image non trouvée
+			# Image not found
 			$ScrShot = $out.Split('|')[1] 
 			$BaseFileName = [System.IO.Path]::GetFileNameWithoutExtension($ScrShot)
 			$BaseFileNameExt = [System.IO.Path]::GetExtension($ScrShot)
 			#
-			# Send image to EON server.
+			# Send image to EON server
 			AddValues "ERROR" "Send the file: ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot ${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
 			$SendFile = & ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot "${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
             $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
@@ -191,7 +191,7 @@ Function ImageSearch
 
 }
 
-# Function de recherche image en basse precision (drift to the green)
+# Function of image search in low precision (drift to the green)
 Function ImageSearchLowPrecision
 {
 
@@ -212,7 +212,7 @@ Function ImageSearchLowPrecision
 
 }
 
-# Function de click gauche
+# Function left click
 Function ImageClick($xy,$xoffset,$yoffset,$type="left")
 {
 	$x = [int]$xy[0]
@@ -239,7 +239,7 @@ Function ImageClick($xy,$xoffset,$yoffset,$type="left")
 
 }
 
-# Function de création des perdata
+# Function of perdata creation
 Function GetPerfdata
 {
 
@@ -283,7 +283,7 @@ Function GetPerfdata
 
 }
 
-# Cryptage du password
+# Password encryption
 Function GetCryptedPass 
 {
 
@@ -304,7 +304,7 @@ Function GetCryptedPass
     return $Password
 }
 
-# Function de recherche image
+# Function of image search
 Function SetScreenResolution
 {
 
