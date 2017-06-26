@@ -60,16 +60,24 @@ AddValues "INFO" "Current call is: $App $EonServ $EonToken $EonUrl $PurgeProcess
 Get-ChildItem -Path $ScriptPath\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
 # Chargement de l'application
+AddValues "INFO" "$InitApp not found"
 $TempPathAppsLnk = $PathApps + "User\\" + $App + ".ps1.lnk"
+AddValues "INFO" "LNK: $TempPathAppsLnk"
 if ( (Test-Path $TempPathAppsLnk) ) { 
+    AddValues "INFO" "GUI link detected"
     $InitApp = $PathApps + $App + ".ps1"
     $InitApp = $InitApp -replace "user_", ""
 } else {
+        AddValues "INFO" "Direct call"
     $InitApp = $PathApps + $App + ".ps1"
 }
 
 $PassApp = $PathApps + $App + ".pass"
-If (!(Test-Path $InitApp)){ throw [System.IO.FileNotFoundException] "$InitApp not found" }
+if ( ! (Test-Path $InitApp) )
+    { 
+        AddValues "INFO" "$InitApp not found"
+        throw [System.IO.FileNotFoundException] "InitApp not found"
+    }
 . $InitApp
 
 AddValues "INFO" "Chargement InitApp OK... ($InitApp)"
