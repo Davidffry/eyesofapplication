@@ -9,24 +9,17 @@ $Sonde = $ApxPath + "eon4apps.ps1"
 
 New-Item $ApxPath -Type directory
 Copy-Item -Path $Path"\Dependances\Apps" -Destination $ApxPath -Recurse
+Copy-Item -Path $Path"\Dependances\bin" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Docs" -Destination $ApxPath -Recurse
-Copy-Item -Path $Path"\Dependances\Execlog" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\Images" -Destination $ApxPath -Recurse
+Copy-Item -Path $Path"\Dependances\lib" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\log" -Destination $ApxPath -Recurse
+Copy-Item -Path $Path"\Dependances\ps" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\sshkey" -Destination $ApxPath -Recurse
 
-Copy-Item -Path $Path"\Dependances\GetImageLocation.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\EON-Keyboard.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\ImageSearchDLL.dll" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\eon4apps.ps1" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\init.ps1" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\pscp.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\ps_nrdp.ps1" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\SetScreenSetting.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\SetActiveWindows.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\SetMaximizedWindows.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\GetRunner.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\EyesOfApplicationGUI.exe" -Destination $ApxPath
-Copy-Item -Path $Path"\Dependances\MinimizeAllWindows.exe" -Destination $ApxPath
 
-SCHTASKS /Create /SC MINUTE /MO 5 /TN EON4APPS /TR "powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File '$Sonde' www.eyesofnetwork.fr $EonServ $EonToken"
+
+
+Copy-Item -Path $Path"\Dependances\EyesOfApplicationGUI.exe" -Destination $ApxPath
+
+SCHTASKS /Create /SC MINUTE /MO 5 /TN EON4APPS /TR "powershell -WindowStyle Minimized -ExecutionPolicy Bypass -File '$Sonde' www.eyesofnetwork.fr $EonServ $EonToken https://$EonServ/nrdp/ true"

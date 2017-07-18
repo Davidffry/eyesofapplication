@@ -40,22 +40,22 @@ Function Click-MouseButton
 
     if($Button -eq "double")
     {
-        & $Path\EON-Keyboard.exe -c L
+        & $Path\..\bin\EON-Keyboard.exe -c L
 		Start-sleep 1
     }
     if($Button -eq "left")
     {
-        & $Path\EON-Keyboard.exe -c l
+        & $Path\..\bin\EON-Keyboard.exe -c l
 		Start-sleep 1
     }
     if($Button -eq "right")
     {
-        & $Path\EON-Keyboard.exe -c r
+        & $Path\..\bin\EON-Keyboard.exe -c r
 		Start-sleep 1
     }
     if($Button -eq "middle")
     {
-        & $Path\EON-Keyboard.exe -c m
+        & $Path\..\bin\EON-Keyboard.exe -c m
 		Start-sleep 1
     }
 }
@@ -63,14 +63,14 @@ Function Click-MouseButton
 Function Send-SpecialKeys
 {
     param([string] $KeysToPress)
-    & $Path\EON-Keyboard.exe -S $KeysToPress
+    & $Path\..\bin\EON-Keyboard.exe -S $KeysToPress
     Start-sleep 1
 }
 
 Function Send-Keys
 {
     param([string] $KeysToPress)
-    & $Path\EON-Keyboard.exe -s $KeysToPress
+    & $Path\..\bin\EON-Keyboard.exe -s $KeysToPress
     Start-sleep 1
 }
 
@@ -92,8 +92,8 @@ function Set-Active
     param (
         [int] $ProcessPid
     )
-	AddValues "INFO" "PID ---> $ProcessPid"
-	& $Path\SetActiveWindows.exe $ProcessPid 0
+	AddValues "INFO" "Set-Active PID ---> $ProcessPid"
+	& $Path\..\bin\SetActiveWindows.exe $ProcessPid 0
 }
 
 function Set-Active-Maximized
@@ -101,8 +101,8 @@ function Set-Active-Maximized
     param (
         [int] $ProcessPid
     )
-    AddValues "INFO" "PID ---> $ProcessPid"
-    & $Path\SetMaximizedWindows.exe $ProcessPid 0
+    AddValues "INFO" "Set-Active-Maximized PID ---> $ProcessPid"
+    & $Path\..\bin\SetMaximizedWindows.exe $ProcessPid 0
 }
 
 # Function to purge processes
@@ -132,7 +132,7 @@ Function ImageSearch
     If (!(Test-Path $Image)){ throw [System.IO.FileNotFoundException] "ImageSearch: $Image not found" }
 	$ImageFound = 0
     for($i=1;$i -le $ImageSearchRetries;$i++)  {
-        $out = & $Path"\GetImageLocation.exe" $Image 0 $variance $green
+        $out = & $Path"\..\bin\GetImageLocation.exe" $Image 0 $variance $green
         $State = [int]$out.Split('|')[0]
 		
 		if ($State -ne 0) {
@@ -165,7 +165,7 @@ Function ImageSearch
 	
 	if (($ImageFound -ne 1) -and ($noerror -eq 0))
 	{
-		$out = & $Path"\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance $green
+		$out = & $Path"\..\bin\GetImageLocation.exe" $Image $ImageSearchVerbosity $variance $green
         $State = [int]$out.Split('|')[0]
 		$xy=@(0,0)
 		if ($State -eq 0) {
@@ -175,9 +175,10 @@ Function ImageSearch
 			$BaseFileNameExt = [System.IO.Path]::GetExtension($ScrShot)
 			#
 			# Send image to EON server
-			AddValues "ERROR" "Send the file: ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot ${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
-			$SendFile = & ${Path}pscp.exe -i ${Path}sshkey\id_dsa -l eon4apps $ScrShot "${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
-            $out = & ${Path}\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
+            $PathKey = $Path -replace "\\ps\\", "\sshkey"
+			AddValues "ERROR" "Send the file: ${Path}\..\bin\pscp.exe -i ${Path}..\sshkey\id_dsa -l eon4apps $ScrShot ${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
+			$SendFile = & ${Path}\..\bin\pscp.exe -i ${PathKey}\id_dsa -l eon4apps $ScrShot "${EonSrv}:/srv/eyesofnetwork/eon4apps/html/"
+            $out = & ${Path}\..\bin\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 			$ConcatUrlSend = $Image + ' not found in screen: <a href="/eon4apps/' + $BaseFileName + $BaseFileNameExt + '" target="_blank">' + $ScrShot + '</a>'
 			throw [System.IO.FileNotFoundException] "$ConcatUrlSend"
 		}
@@ -254,10 +255,17 @@ Function GetPerfdata
     $ServicesC=""
     $ChronoTotal=0
     $PerfDataTemp=""
-    $i=0
+    $i=1
     
     Foreach($svc in $Services){ 
-        $ChronoTotal += $Chrono[$i]
+
+        $svc0 = $svc[0]
+        $svc1 = $svc[1]
+        $svc2 = $svc[2]
+        $Current_ChronoTotal=$Chrono[$i]
+        AddValues "INFO" "Counter=$svc0 ; Warning=$svc1; Critical=$svc2, Current value: $Current_ChronoTotal seconds"
+
+        $ChronoTotal += $Current_ChronoTotal
         $PerfDataTemp = $PerfDataTemp + " " + $svc[0] + "=" + $Chrono[$i]+"s"
         $ServicesWtmp = "\nWARNING : " +$svc[0]+" "+$Chrono[$i]+"s" 
         $ServicesCtmp = "\nCRITICAL : " +$svc[0]+" "+$Chrono[$i]+"s" 
@@ -314,8 +322,9 @@ Function SetScreenResolution
         [int] $debug=2
     )
 
+    AddValues "INFO" "Path value in SetScreen: $Path"
+    $out = & $Path"\..\bin\SetScreenSetting.exe" $ResolutionX $ResolutionY $debug
 
-    $out = & $Path"\SetScreenSetting.exe" $ResolutionX $ResolutionY $debug
     $State = [int]$out.Split('|')[0]
     
     if ($State -ne 0) {
@@ -349,5 +358,5 @@ Function ImageNotExist
 function Minimize-All-Windows
 {
     AddValues "INFO" "Minimize all windows."
-    & $Path\MinimizeAllWindows.exe
+    & $Path\..\bin\MinimizeAllWindows.exe
 }
