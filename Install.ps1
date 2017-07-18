@@ -5,7 +5,7 @@ $EonToken = [Microsoft.VisualBasic.Interaction]::InputBox("Token NRDP", "Configu
 $Path = Get-Location
 $ApxPath = "C:\Axians\EOA\"
 $Purge = $ApxPath + "purge.ps1"
-$Sonde = $ApxPath + "eon4apps.ps1"
+$Sonde = $ApxPath + "ps\eon4apps.ps1"
 
 New-Item $ApxPath -Type directory
 Copy-Item -Path $Path"\Dependances\Apps" -Destination $ApxPath -Recurse
@@ -16,8 +16,6 @@ Copy-Item -Path $Path"\Dependances\lib" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\log" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\ps" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\sshkey" -Destination $ApxPath -Recurse
-
-
 
 
 Copy-Item -Path $Path"\Dependances\EyesOfApplicationGUI.exe" -Destination $ApxPath
