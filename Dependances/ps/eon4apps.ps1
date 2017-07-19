@@ -3,13 +3,13 @@
 #* Powershell                                                                                                                                *#
 #* Author:LEVY Jean-Philippe                                                                                                                 *#
 #*                                                                                                                                           *#
-#* Script Function  : Chargement eon4apps                                                                                                    *#
+#* Script Function  : Running Apps                                                                                                    *#
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
-#********************************************************************INITIALISATIONS***********************************************************
+#********************************************************************INITIALIZATION***********************************************************
 
-# Paramètres
+# Parameters
 Param(
 	[Parameter(Mandatory=$true)]
 	[string]$App,
@@ -22,15 +22,15 @@ if(!$EonServ -or !$EonToken) { throw "Please define EonServ and EonToken" }
 $App_Backup = $App # Workaround bug of Start-Process made by Microsoft
 
 
-# Récupération du path
+# Path grabbing
 $ScriptPath = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path)
 
-# Variables et Fonctions
+# Functions and variables
 $Init = $ScriptPath + "\init.ps1"
 If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not found" }
 . $Init
 
-# Création du fichier de log
+# Log file creation
  $out = & $ScriptPath"\..\bin\GetRunner.exe" 0
         $State = [int]$out.Split('|')[0]
         
@@ -54,12 +54,12 @@ If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not foun
 New-Item $Log -Type file -force -value "" |out-null
 
 # From this point logging is available.
-AddValues "INFO" "Chargement Init.ps1 OK"
+AddValues "INFO" "Loading Init.ps1 OK"
 AddValues "INFO" "Current call is: $App $EonServ $EonToken $EonUrl $PurgeProcess."
 # Purge
 Get-ChildItem -Path $ScriptPath\..\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
-# Chargement de l'application
+# Application loading
 AddValues "INFO" "$InitApp not found"
 $TempPathAppsLnk = $PathApps + "User\\" + $App + ".ps1"
 $TempPathAppsLnk = $TempPathAppsLnk -replace "user_", "" -replace "\\ps\\", "\\" 
@@ -81,7 +81,7 @@ if ( ! (Test-Path $InitApp) )
         throw [System.IO.FileNotFoundException] "InitApp not found"
     }
 . $InitApp
-AddValues "INFO" "Chargement InitApp OK... ($InitApp)"
+AddValues "INFO" "Loading InitApp OK... ($InitApp)"
 
 # Determine if User (GUI) or Sched
 $FromGUI = $false
@@ -93,16 +93,16 @@ AddValues "INFO" "Running scenario:" + $InitApp + "\n"
 
 #*********************************************************************************************************************************#
 #*                                                                                                                               *#
-#*                                                          DEBUT DU PROGRAMME                                                   *#
+#*                                                          BEGIN                                                  *#
 #*                                                                                                                               *#
 #*********************************************************************************************************************************#    
 
-AddValues "INFO" "Démarrage de la sonde"
+AddValues "INFO" "Starting prober"
 
 [system.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | out-null
 [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(0,0)
 
-# Création du dossier et des variables images
+# Create folder and image variable.
 $RealApp = $App -replace "user_", ""
 $RootPath = $PathApps -replace "\\ps\\", "" -replace "Apps\\", ""
 
@@ -111,13 +111,13 @@ AddValues "INFO" "ImagePathFolder set to $ImagePathFolder."
 New-Item $ImagePathFolder -Type directory -force -value "" |out-null
 Get-ChildItem $ImagePathFolder -Filter *.bmp |foreach { $name = $_.BaseName ; New-Variable -Force -Name "Image_${name}" -Value $_.FullName }
 
-#Purge des processus
+#Purge of processs
 if($PurgeProcess -eq "True") {
-	AddValues "INFO" "Purge des processus"
+	AddValues "INFO" "Purge of process"
 	PurgeProcess
 }
 
-# --- Definition des seuils globaux
+# --- Global threshold definition
 Foreach($svc in $Services) { 
     $Current_Service = $svc[0]
     $Current_BorneInferieur = $svc[1]
@@ -137,14 +137,14 @@ cd $ExceScriptPath
 # # --- Start application and initialize launch chrono.
 $cmd = Measure-Command {
 
-    AddValues "INFO" "Lancement de l'application"
+    AddValues "INFO" "Start of application"
     
-    # Client lourd avec arguments
+    # Client/Server apps with arguments
     if($ProgArg) {  
         $app = Start-Process -PassThru -FilePath "$ProgExe" -ArgumentList "$ProgArg" -WorkingDirectory "$ProgDir"            
         AddValues "INFO" "Run with Args: $ProgExe $ProgArg"
     }   
-    # Client lourd sans arguments
+    # Client/Server apps WITHOUT arguments
     elseif($ProgExe) { 
         $app = Start-Process -PassThru -FilePath "$ProgExe" -WorkingDirectory "$ProgDir"        
         AddValues "INFO" "Run: $ProgExe"
@@ -175,21 +175,21 @@ $Recorded_Chrono = $Chrono[0]
 AddValues "INFO" "Application launch had been performed in $Current_Chrono seconds (Recorded_Chrono[0]: $Recorded_Chrono)"
 
 AddValues "INFO" "EOA Scenario: $App"
-# Chargement de l'application
+# Load application
 Try {
     $Chrono += RunScenario($Chrono)   
 }
 Catch {
 
-    # Ajouter le service en cours en erreur
+    # Add current service in error
     $ErrorMessage = $_.Exception.Message
     AddValues "ERROR" $ErrorMessage
     $Status = "CRITICAL"
     $Information = $Status + " : " + $Service + " " + $ErrorMessage
     AddValues "ERROR" $Information
 
-    # Envoi de la trap
-    AddValues "ERROR" "Envoi de la trap en erreur"
+    # Send information via NRDP
+    AddValues "ERROR" "Send information of error to monitoring system."
     if ( $FromGUI -eq $false ) {
  	  $Send_Trap = & powershell -ExecutionPolicy ByPass -File ${Path}\ps_nrdp.ps1 -url "${EonUrl}" -token "${EonToken}" -hostname "${Hostname}" -service "${Service}" -state "${Status}" -output "${Information}"
 	   AddValues "ERROR" "powershell -ExecutionPolicy ByPass -File ${Path}\ps_nrdp.ps1 -url '${EonUrl}' -token '${EonToken}' -hostname '${Hostname}' -service '${Service}' -state '${Status}' -output '${Information}'"
@@ -204,28 +204,28 @@ Catch {
 
 }
 
-# Définition des perfdata
+# Preformance data definition
 $PerfData = GetPerfdata $Services $Chrono $BorneInferieure $BorneSuperieure
 
-# Dépassement de seuil global ou unitaire
+# Breaking threshold globaly or unitary
 if (($PerfData[0] -gt $BorneSuperieure) -or ($PerfData[3] -ne ""))
 {
 	$Status = "CRITICAL"
-    AddValues "WARN" "Envoi de la trap en dépassement de seuil"
+    AddValues "WARN" "Sending information of over threhold meseaurement (CRITICAL)."
 }
 elseif (($PerfData[0] -gt $BorneInferieure) -or ($PerfData[2] -ne "")) 
 { 
 	$Status = "WARNING"
-    AddValues "WARN" "Envoi de la trap en dépassement de seuil"
+    AddValues "WARN" "Sending information of over threhold meseaurement (WARNING)."
 }
-# Exécution normale
+# Basic execution
 else
 {
 	$Status = "OK"
-    AddValues "INFO" "Envoi de la trap en fonctionnement normal"
+    AddValues "INFO" "Sending information of usual behavior (OK)."
 }
 	
-# Envoi de la trap
+# Sending information via NRDP
 $Information = $Status + " : " + $Service + " " + $PerfData[0] + "s" 
 if($PerfData[2] -ne "") { $Information = $Information + " " + $PerfData[2] }
 if($PerfData[3] -ne "") { $Information = $Information + " " + $PerfData[3] }
@@ -243,20 +243,13 @@ if ( $FromGUI -eq $true ) {
 AddValues "INFO" "Restore screen resolution"
 $out = & ${Path}\..\bin\SetScreenSetting.exe 0 0 0 #Restore good known screen configuration
 
-# # Purge des processus
+# # Purge of process
 if($PurgeProcess -eq "True") {
-    AddValues "INFO" "Purge des processus"
+    AddValues "INFO" "Purge of process"
     PurgeProcess
 }
 
-# Fin de la sonde
-AddValues "INFO" "Fin de la sonde"
+# End of probe
+AddValues "INFO" "End of probing."
 
 exit 0
-
-
-#*********************************************************************************************************************************#
-#*                                                                                                                               *#
-#*                                                          FIN DU PROGRAMME                                                     *#
-#*                                                                                                                               *#
-#*********************************************************************************************************************************# 

@@ -1,6 +1,6 @@
 [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') 
-$EonServ = [Microsoft.VisualBasic.Interaction]::InputBox("IP du serveur EON", "Configuration NRDP", "")
-$EonToken = [Microsoft.VisualBasic.Interaction]::InputBox("Token NRDP", "Configuration NRDP", "")
+$EonServ = [Microsoft.VisualBasic.Interaction]::InputBox("IP of the EON server", "NRDP configuration", "")
+$EonToken = [Microsoft.VisualBasic.Interaction]::InputBox("NRDP Ttken", "NRDP configuration", "")
 
 $Path = Get-Location
 $ApxPath = "C:\Axians\EOA\"
