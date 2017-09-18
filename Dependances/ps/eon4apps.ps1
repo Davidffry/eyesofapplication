@@ -3,7 +3,7 @@
 #* Powershell                                                                                                                                *#
 #* Author:LEVY Jean-Philippe                                                                                                                 *#
 #*                                                                                                                                           *#
-#* Script Function  : Running Apps                                                                                                    *#
+#* Script Function  : Running Apps                                                                                                           *#
 #*                                                                                                                                           *#
 #*********************************************************************************************************************************************#
 
@@ -39,7 +39,7 @@ If (!(Test-Path $Init)){ throw [System.IO.FileNotFoundException] "$Init not foun
                 $username = $out.Split('|')[2]
                 $computer = $out.Split('|')[3] 
 
-                $LogPath = $ScriptPath + "\..\Execlog\" + $domain + "\" + $username + "\" + $computer
+                $LogPath = $ScriptPath + "\..\log\" + $domain + "\" + $username + "\" + $computer
                 
                 If(!(test-path $LogPath)) {
                     New-Item -ItemType Directory -Force -Path $LogPath

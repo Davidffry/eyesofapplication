@@ -11,8 +11,8 @@
 
 $Path = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path)
 $Path = $Path + "\" #Don't modify
-$PathApps = $Path + "Apps\"#Don't modify
-$CheminFichierImages = $Path + "Images\"#Don't modify
+$PathApps = $Path + "apps\"#Don't modify
+$CheminFichierImages = $Path + "images\"#Don't modify
 $Status = "OK"#Don't modify-initialisation
 $Information = ""#Don't modify
 $Chrono=@()#Don't modify
@@ -21,7 +21,7 @@ $BorneSuperieure = 0#Don't modify
 $PerfData = " | "#Don't modify
 $PurgeDelay = 60#Don't modify
 
-#********************************************************************FuNCTIONS*****************************************************************
+#********************************************************************FUNCTIONS*****************************************************************
 
 # Function adding the values in a file
 Function AddValues($aNiveau, $aMsg)

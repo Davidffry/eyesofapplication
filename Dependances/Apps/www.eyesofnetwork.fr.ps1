@@ -27,7 +27,7 @@ $Url = "http://www.eyesofnetwork.fr"
 $ProgExe = "C:\Program Files\Mozilla Firefox\firefox.exe" # Executable sample 64 bits...
 #$ProgExe = "C:\Program Files (x86)\Mozilla Firefox\firefox.exe" # Executable sample 32 bits...
 $ProgArg = $Url # Arguments of the executable
-$ProgDir = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path) # Dossier dans lequel démarrer le programme
+$ProgDir = (Split-Path ((Get-Variable MyInvocation).Value).MyCommand.Path) # Executable start in folder
 
 # --- Authentification
 $User = ""
