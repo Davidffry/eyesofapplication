@@ -60,7 +60,6 @@ AddValues "INFO" "Current call is: $App $EonServ $EonToken $EonUrl $PurgeProcess
 Get-ChildItem -Path $ScriptPath\..\log\ -Filter *.bmp -Force | Where-Object { $_.CreationTime -lt (Get-Date).AddMinutes(-$PurgeDelay) } | Remove-Item -Force -Recurse
 
 # Application loading
-AddValues "INFO" "$InitApp not found"
 $TempPathAppsLnk = $PathApps + "User\\" + $App + ".ps1"
 $TempPathAppsLnk = $TempPathAppsLnk -replace "user_", "" -replace "\\ps\\", "\\" 
 
@@ -89,11 +88,11 @@ if ( ($App -match [regex]'^user_')) {
     AddValues "INFO" "Running from GUI detected."
     $FromGUI = $true
 }
-AddValues "INFO" "Running scenario:" + $InitApp + "\n"
+AddValues "INFO" "Running scenario: $InitApp"
 
 #*********************************************************************************************************************************#
 #*                                                                                                                               *#
-#*                                                          BEGIN                                                  *#
+#*                                                          BEGIN                                                                *#
 #*                                                                                                                               *#
 #*********************************************************************************************************************************#    
 
