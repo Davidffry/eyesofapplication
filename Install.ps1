@@ -8,7 +8,7 @@ $Purge = $ApxPath + "purge.ps1"
 $Sonde = $ApxPath + "ps\eon4apps.ps1"
 
 New-Item $ApxPath -Type directory
-New-Item $ApxPath"\Dependances\log" -Type directory
+New-Item $ApxPath"\log" -Type directory
 
 Copy-Item -Path $Path"\Dependances\apps" -Destination $ApxPath -Recurse
 Copy-Item -Path $Path"\Dependances\bin" -Destination $ApxPath -Recurse
